@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Markopi & The Joglo Seafood</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: url('resto.jpeg') center/cover no-repeat;
+            color: white;
+        }
+
+        .category {
+           display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .category button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            background: #2a2a2a;
+            color: white;
+            cursor: pointer;
+        }
+
+        .category button.active {
+            background: #ff4d4d;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: -1;
+        }
+
+        header {
+            padding: 20px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 15px;
+        }
+
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            position: relative;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: fadeUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.15s; }
+        .card:nth-child(4) { animation-delay: 0.2s; }
+
+        .card img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 8px;
+        }
+
+        .badge {
+          position: absolute;
+            top: 8px;
+            left: 8px;
+            background: red;
+            color: white;
+            font-size: 10px;
+            padding: 4px 6px;
+            border-radius: 6px;
+            z-index: 2;
+        }
+
+        .title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .price {
+            color: #ddd;
+            font-size: 12px;
+        }
+
+        .btn-add {
+            margin-top: 8px;
+            background: #ff4d4d;
+            border: none;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .btn-add:active {
+           transform: scale(0.9);
+        }
+
+        .cart-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            color: black;
+            padding: 12px 20px;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            color: black;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .modal.show {
+            bottom: 0;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .total {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .item {
+            transition: all 0.3s ease;
+        }
+
+        .checkout {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            background: black;
+            color: white;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .cart-item button {
+            border: none;
+            padding: 4px 8px;
+            margin-left: 5px;
+            border-radius: 6px;
+            background: black;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<header>Markopi & The Joglo Seafood</header>
+
+<div class="container">
+    <input 
+    type="text" 
+    id="search"
+    placeholder="Cari menu..."
+    onkeyup="searchMenu()"
+    style="
+        width:100%;
+        padding:10px;
+        border-radius:10px;
+        border:none;
+        margin-bottom:15px;
+        outline:none;
+    "
+>
+<div class="category">
+    <button onclick="filterMenu('all')" class="active">Semua</button>
+    <button onclick="filterMenu('makanan')">Makanan</button>
+    <button onclick="filterMenu('minuman')">Minuman</button>
+</div>
+
+    <div class="menu">
+
+        <div class="card item" data-name="nasi putih" data-category="makanan">
+            <div class="badge"></div>
+            <img src="a.jpeg">
+            <div class="card-content">
+                <div class="title">Nasi Putih</div>
+                <div class="price">Rp 7000</div>
+                <button class="btn-add" onclick="tambah('Nasi Putih', 7000)">Tambah</button>
+            </div>
+        </div>
+
+        <div class="card item" data-name="nasi goreng biasa" data-category="makanan">
+            <div class="badge"></div>
+            <img src="a.jpeg">
+            <div class="card-content">
+                <div class="title">Nasi Goreng Biasa</div>
+                <div class="price">Rp 30000</div>
+                <button class="btn-add" onclick="tambah('Nasi Goreng Biasa', 30000)">Tambah</button>
+            </div>
+        </div>
+
+        <div class="card item" data-name="nasi goreng seafood" data-category="makanan">
+            <div class="badge">Best Seller</div>
+            <img src="a.jpeg">
+            <div class="card-content">
+                <div class="title">Nasi Goreng Seafood</div>
+                <div class="price">Rp 40000</div>
+                <button class="btn-add" onclick="tambah('Nasi Goreng Seafood', 40000)">Tambah</button>
+            </div>
+        </div>
+
+        <div class="card item" data-name="nasi goreng ikan asin" data-category="makanan">
+            <div class="badge"></div>
+            <img src="a.jpeg">
+            <div class="card-content">
+                <div class="title">Nasi Goreng Ikan Asin</div>
+                <div class="price">Rp 40000</div>
+                <button class="btn-add" onclick="tambah('Nasi Goreng Ikan Asin', 40000)">Tambah</button>
+            </div>
+        </div>
+
+        <div class="card item" data-name="nasi goreng pete" data-category="makanan">
+            <div class="badge"></div>
+            <img src="a.jpeg">
+            <div class="card-content">
+                <div class="title">Nasi Goreng Pete</div>
+                <div class="price">Rp 40000</div>
+                <button class="btn-add" onclick="tambah('Nasi Goreng Pete', 40000)">Tambah</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- CART BAR -->
+<div class="cart-bar" onclick="toggleCart()">
+    <span>🛒 (<span id="count">0</span>)</span>
+    <span>Rp <span id="total">0</span></span>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="cartModal">
+    <h3>Keranjang</h3>
+
+    <p class="note">Harga sudah termasuk pajak & service</p>
+
+    <div id="cart-list"></div>
+
+    <div class="total">Subtotal: Rp <span id="subtotal">0</span></div>
+    <div class="total">Pajak (10%): Rp <span id="tax">0</span></div>
+    <div class="total">Service (5%): Rp <span id="service">0</span></div>
+    <div class="total"><b>Total: Rp <span id="total2">0</span></b></div>
+
+    <button class="checkout" onclick="checkout()">Pesan</button>
+</div>
+
+<script>
+    function filterMenu(category) {
+    let items = document.querySelectorAll(".item");
+
+    items.forEach(item => {
+        let cat = item.getAttribute("data-category");
+
+        if (category === "all" || cat === category) {
+            item.style.display = "block";
+        } else {
+            item.style.opacity = "0";
+            setTimeout(() => {
+            item.style.display = "none";
+            }, 200);
+        }
+    });
+
+    // update tombol aktif
+    let buttons = document.querySelectorAll(".category button");
+    buttons.forEach(btn => btn.classList.remove("active"));
+
+    event.target.classList.add("active");
+}
+
+    function formatRupiah(angka) {
+    return angka.toLocaleString("id-ID");
+}
+
+    function kurang(nama) {
+    if (cart[nama]) {
+        cart[nama].qty--;
+
+        if (cart[nama].qty <= 0) {
+            delete cart[nama];
+        }
+    }
+    render();
+}
+    function searchMenu() {
+    let input = document.getElementById("search").value.toLowerCase();
+    let items = document.querySelectorAll(".item");
+
+    items.forEach(item => {
+        let name = item.getAttribute("data-name");
+
+        if (name.includes(input)) {
+            item.style.display = "block";
+        } else {
+            item.style.display = "none";
+        }
+    });
+}
+let cart = {};
+
+const TAX_RATE = 0.10;
+const SERVICE_RATE = 0.05;
+
+function tambah(nama, harga) {
+    if (!cart[nama]) cart[nama] = { harga: harga, qty: 0 };
+    cart[nama].qty++;
+    render();
+
+    // efek animasi cart
+    let cartBar = document.querySelector(".cart-bar");
+    cartBar.style.transform = "translateX(-50%) scale(1.1)";
+    setTimeout(() => {
+        cartBar.style.transform = "translateX(-50%) scale(1)";
+    }, 150);
+
+    let btn = event.target;
+    btn.style.transform = "scale(1.2)";
+    setTimeout(() => {
+    btn.style.transform = "scale(1)";
+    }, 150);
+}
+
+function kurang(nama) {
+    if (cart[nama]) {
+        cart[nama].qty--;
+
+        if (cart[nama].qty <= 0) {
+            delete cart[nama];
+        }
+    }
+    render();
+}
+
+function render() {
+    let subtotal = 0;
+    let count = 0;
+    let list = document.getElementById("cart-list");
+    list.innerHTML = "";
+    
+
+    for (let item in cart) {
+        let data = cart[item];
+        subtotal += data.harga * data.qty;
+        count += data.qty;
+
+        let div = document.createElement("div");
+        div.className = "cart-item";
+
+        div.innerHTML = `
+            <span>${item} x${data.qty}</span>
+            <div>
+                <button onclick="kurang('${item}')">-</button>
+                <button onclick="tambah('${item}', ${data.harga})">+</button>
+            </div>
+        `;
+
+        list.appendChild(div);
+    }
+    
+
+    let tax = subtotal * TAX_RATE;
+    let service = subtotal * SERVICE_RATE;
+    let total = subtotal + tax + service;
+
+    document.getElementById("subtotal").innerText = subtotal;
+    document.getElementById("tax").innerText = Math.round(tax);
+    document.getElementById("service").innerText = Math.round(service);
+    document.getElementById("total").innerText = Math.round(total);
+    document.getElementById("total2").innerText = Math.round(total);
+    document.getElementById("count").innerText = count;
+    document.getElementById("total").innerText = formatRupiah(Math.round(total));
+}
+
+function toggleCart() {
+    document.getElementById("cartModal").classList.toggle("show");
+}
+
+function checkout() {
+    let pesan = "Halo, saya mau pesan:%0A";
+    let subtotal = 0;
+
+    for (let item in cart) {
+        let data = cart[item];
+        pesan += `${item} x${data.qty}%0A`;
+        subtotal += data.harga * data.qty;
+    }
+
+    let total = subtotal + (subtotal * TAX_RATE) + (subtotal * SERVICE_RATE);
+
+    pesan += "%0ATotal: Rp " + Math.round(total);
+
+    window.open("https://wa.me/6285317889534?text=" + pesan);
+}
+</script>
+
+</body>
+</html>
